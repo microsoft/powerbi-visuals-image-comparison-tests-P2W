@@ -1,0 +1,123 @@
+{
+  "Desktop" : [
+    {
+      "name": "Revenue",
+      "element": {
+        "await": [
+          "svg.donutChart g.slices > *",
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ]
+      },
+      "url" : "https://app.powerbi.com/view?r=eyJrIjoiYzViOTU2Y2EtMGY0ZC00NzU5LTljOTYtNTBhNDRiNzI3MmFhIiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "GDP accuracy",
+      "element": {
+        "await": [
+          "div.slicer-container div.slicerBody",
+          "svg.cartesianChart g.mainGraphicsContext > *",
+          "svg.card g > *"
+        ]
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiYmVjMjdkMTMtMWQ5Ny00N2Y0LWI3MGYtNDljY2M5Y2U4MDNhIiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "Spending",
+      "element": {
+        "await": [
+          "svg.donutChart g.slices > *",
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ]
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiNWY2NDJjNDEtZGQ5Yy00ZTU1LTg0YjMtM2JhNjc5NDk3NWYzIiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "Debt ceiling",
+      "element": {
+        "await": [
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ]
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiNzhkMzIwYmEtNWE5OS00NDgwLTgxNzItMWM5Njg2OGM1ZmQ3IiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "Search",
+      "element": {
+        "await": [
+          "div.slicer-container div.slicerBody",
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ],
+        "frame": {
+          "parentElement": ".visual-AttributeSlicer1652434005853",
+          "childElement": "div.advanced-slicer div.list div.list-display"
+        }
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiZGMzYzQ4NWUtMDkzNS00MDFjLWI0YzQtMzAwZGZhODM0NTA2IiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    }
+  ],
+  "Mobile" : [
+    {
+      "name": "Revenue",
+      "element": {
+        "await": [
+          "svg.donutChart g.slices > *",
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ]
+      },
+      "url" : "https://app.powerbi.com/view?r=eyJrIjoiMTg5YzZlYzUtODBlYS00ZGQ1LWIwMDctMDQ3NTZmYTQ5YzQ4IiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "GDP accuracy",
+      "element": {
+        "await": [
+          "div.slicer-container div.slicerBody",
+          "svg.cartesianChart g.mainGraphicsContext > *",
+          "svg.card g > *"
+        ]
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiMTEyZTk2NTktY2U2Yy00OTY0LTgwOGMtYjM4ZDA4OGJiMTc0IiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "Spending",
+      "element": {
+        "await": [
+          "svg.donutChart g.slices > *",
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ]
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiNmZkMzRkNzMtZTAzZi00MWQ3LWI0NmUtOTM3YzZjYjlhODdhIiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "Debt ceiling",
+      "element": {
+        "await": [
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ]
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiMGRhZTc0NGYtYWU4Zi00NzNhLWExNjQtMjdmNjViZjk2ODFhIiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    },
+    {
+      "name": "Search",
+      "element": {
+        "await": [
+          "svg.cartesianChart svg.mainGraphicsContext g.series > *",
+          "svg.card g > *"
+        ],
+        "frame": {
+          "parentElement": ".visual-AttributeSlicer1652434005853",
+          "childElement": "div.advanced-slicer div.list div.list-display"
+        }
+      },
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiNmNhMWU0MTYtZTM1Yi00NzUxLWI4MmItODJkNjUwOWUwNDI3IiwidCI6IjU5ZWE3YmI0LTYxYTAtNGE0Mi1iMmU0LTJhYmU4NmY0YzdjOSIsImMiOjZ9"
+    }
+  ]
+}
+
+
