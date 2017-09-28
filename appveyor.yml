@@ -1,0 +1,57 @@
+# AppVeyor file
+# http://www.appveyor.com/docs/appveyor-yml
+
+# What combinations to test
+environment:
+  nodejs_version: "7.7.1"
+  access_token:
+    secure: vfC718t7hXOGAbT9B3tXImGgQtWR1NOMhjF1ENPD+ewTwqoYOTAOJLsu/z+NRWrc
+
+# Build version format test
+version: "{build}"
+
+# Fix line endings on Windows
+init:
+  - git config --global core.autocrlf true
+
+install:
+  - ps: Install-Product node $env:nodejs_version x64
+
+  # installing local npm packages
+  - npm install
+
+build: off
+
+test_script:
+  # Output useful info for debugging.
+  - node --version && npm --version
+  - npm run image-comparison-test
+
+notifications:
+  # Email
+  - provider: Email
+    to:
+      - pbicustomviz@microsoft.com
+      - jennyfel@microsoft.com
+    subject: 'Image comparison test P2W. Build {{status}}'
+  - provider: Slack
+    channel: testing-img-comp-p2w
+    incoming_webhook:
+      secure: /ETrASibodbPcNpx0P3L9sVLbvN9FrMKJASti0kHddEm/3HaMc0065RUyPHyxyukkyOH/9ThE5NAtGJLwA/PlYBiEhguz6kRGpQJtsDuFsk=
+
+on_finish:
+  - 7z a screenshots.zip screenshots
+  - appveyor PushArtifact screenshots.zip
+
+on_success:
+ - git config --global credential.helper store
+ - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+ - git config --global user.email "pbicvbot@microsoft.com"
+ - git config --global user.name "Power BI Custom Visuals Bot"
+ - git add screenshots/*
+ - git commit --allow-empty -m "Appveyor.Screenshots sync[skip ci]"
+ - git push -f origin HEAD:master
+
+cache:
+  - C:\Users\appveyor\AppData\Roaming\npm-cache -> package.json         # npm cache
+  - node_modules -> package.json                                        # local npm modules
