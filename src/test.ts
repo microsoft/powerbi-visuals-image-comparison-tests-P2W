@@ -35,123 +35,127 @@ let config = require('../configuration/embedded-reports-urls.config.json');
 let platformsConfig = require('../configuration/platforms.config.js');
 let webDriverIO = require("webdriverio");
 
+let debugMode: boolean = process.argv.indexOf("--debug") !== -1;
+
 module powerbi.extensibility.visual.test.imageComparisonP2W {
 
-    const dafaultExistTimeout = 20000,
-        pause = 3000,
-        defaultElement = "div.visual",
-        defaultFrameElement = "iframe div",
-        defaultSnapshotElement = "div.visualContainerHost",
-        pagePaginationElements = ".logoBar .navigation-wrapper > a";
+    const dafaultExistTimeout: number = 20000,
+        dafaultExistIFrameTimeout: number = dafaultExistTimeout - 5000,
+        defaultPause: number = 4000,
+        defaultElement: string = "div.visual",
+        defaultFrameElement: string = "iframe div",
+        defaultSnapshotElement: string = "div.visualContainerHost",
+        pagePaginationElements: string = ".logoBar .navigation-wrapper > a";
 
-    function paginatePages(
-        loop: () => void,
-        done: () => void): void {
-        let pagePaginationSelElements: any[] = [];
+    async function paginatePages(loop: () => void): Promise<any> {
+        try {
+            let paginationLinkEl: WebdriverIO.Element[] =
+                (await browser.elements(pagePaginationElements)).value;
+            let paginationIconEl: WebdriverIO.RawResult<WebdriverIO.Element> =
+                await browser.elementIdElement(paginationLinkEl[2].ELEMENT, `i`);
 
-        this
-            .elements(pagePaginationElements)
-            .then((res) => {
-                pagePaginationSelElements = res.value;
-                return browser.elementIdElement(pagePaginationSelElements[2].ELEMENT, "i");
-            })
-            .then((res) =>
-                browser.elementIdAttribute(res.value.ELEMENT, `class`))
-            .then((res) => {
-                if (res.value.indexOf(`inactive`) === -1 &&
-                    res.value.indexOf("pbi-glyph-chevronrightmedium") !== -1) {
-                    browser
-                        .elementIdClick(pagePaginationSelElements[2].ELEMENT);
+            let classedOfPaginationEl: WebdriverIO.RawResult<string> =
+                await browser.elementIdAttribute(paginationIconEl.value.ELEMENT, `class`);
 
-                    loop();
-                } else {
-                    browser
-                        .call(done);
-                }
-            });
-    }
-
-    function getElementsPromises(
-        element: any,
-        existTimeout: number): Promise<any>[] {
-        let elementPromises: Promise<any>[] = [];
-
-        if (element && element.await) {
-            if (Object.prototype.toString.call(element.await) !== `[object Array]`) {
-                element.await = [element.await];
+            if (classedOfPaginationEl.value.indexOf(`inactive`) !== -1 ||
+                classedOfPaginationEl.value.indexOf("pbi-glyph-chevronrightmedium") === -1) {
+                return;
             }
 
-            element.await.forEach(awaitItem => {
-                elementPromises.push(
-                    this.waitForExist(
-                        awaitItem || defaultElement,
-                        existTimeout || dafaultExistTimeout
-                    )
-                );
-            });
-        }
+            await browser
+                .elementIdClick(paginationLinkEl[2].ELEMENT);
 
-        if (!element ||
-            (element && (!element.await || element.frame))) {
-            elementPromises.push(
-                this.waitForExist(
-                    defaultElement,
-                    existTimeout || dafaultExistTimeout
-                )
-            );
+            loop();
+        } catch (err) {
+            throw new Error(err);
         }
+    }
 
-        return elementPromises;
+    async function awaitElements(
+        element: any,
+        existTimeout: number): Promise<any> {
+        existTimeout = existTimeout || dafaultExistTimeout;
+        try {
+            if (element && element.await) {
+                if (Object.prototype.toString.call(element.await) !== `[object Array]`) {
+                    element.await = [element.await];
+                }
+
+                await element.await.forEach(async awaitItem => {
+                    awaitItem = awaitItem || defaultElement;
+                    await browser.waitForExist(awaitItem, existTimeout);
+                });
+            }
+
+            if (!element || (element && (!element.await || element.frame))) {
+                await browser.waitForExist(defaultElement, existTimeout);
+            }
+        } catch(err) {
+            throw new Error(err);
+        }
     }
 
     // iFrames processing
 
-    function checkIFrames(
+    async function checkIFrames(
         element: any,
         existTimeout: number): Promise<any> {
-        return new Promise(resolve => {
-            if (!element ||
-                (element && !element.frame)) {
-                return resolve();
-            }
+        if (!element ||
+            (element && !element.frame)) {
+            return;
+        }
 
-            if (Object.prototype.toString.call(element.frame) !== `[object Array]`) {
-                element.frame = [element.frame];
-            }
+        if (Object.prototype.toString.call(element.frame) !== `[object Array]`) {
+            element.frame = [element.frame];
+        }
 
-            element.frame.forEach((frameItem) => {
-                browser
-                    .elements(`${frameItem.parentElement} iframe`)
-                    .then(res => asyncWaitingOfElementsInFrames(res.value, 0, frameItem.childElement, existTimeout))
-                    .then(resolve);
+        try {
+            await element.frame.forEach(async frameItem => {
+                await browser.waitForExist(`${frameItem.parentElement} iframe`, dafaultExistIFrameTimeout);
+                let iFrameEl: WebdriverIO.Element[] =
+                    (await browser.elements(`${frameItem.parentElement} iframe`)).value;
+
+                await asyncWaitingOfElementsInFrames(iFrameEl, 0, frameItem.childElement, existTimeout)
             });
-        });
+        } catch(err) {
+            throw new Error(err);
+        }
     }
 
-    function asyncWaitingOfElementsInFrames(
+    async function asyncWaitingOfElementsInFrames(
         frames: any[],
         index: number,
         elementForSearch: string,
         existTimeout: number): Promise<any> {
-        return new Promise(resolve => {
-            browser
-                .frame(frames[index])
-                .then(() => browser
-                    .waitForExist(
-                        elementForSearch || defaultFrameElement,
-                        existTimeout || dafaultExistTimeout
-                    )
-                    .frameParent()
-                )
-                .then(() => {
-                    if (frames.length - 1 === index) {
-                        return resolve();
-                    } else {
-                        asyncWaitingOfElementsInFrames(frames, ++index, elementForSearch, existTimeout)
-                            .then(resolve);
-                    }
+        elementForSearch = elementForSearch || defaultFrameElement;
+        existTimeout = existTimeout || dafaultExistTimeout;
+
+        await browser.frame(frames[index]);
+        await browser.waitForExist(elementForSearch, existTimeout);
+        await browser.frameParent();
+
+        if (frames.length - 1 === index) {
+            return;
+        } else {
+            await asyncWaitingOfElementsInFrames(frames, ++index, elementForSearch, existTimeout);
+        }
+    }
+
+    async function takeScreenshot(
+        element: string,
+        pause: number,
+        page: number): Promise<any> {
+        try {
+            await browser
+                .pause(pause)
+                .assertAreaScreenshotMatch({
+                    name: `report_page-${page}`,
+                    ignore: `antialiasing`,
+                    elem: element
                 });
-            });
+        } catch(err) {
+            throw new Error(err);
+        }
     }
 
     for (let platform of Object.keys(config)) {
@@ -170,14 +174,15 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
         });
 
         describe(platform, () => {
-            beforeEach(() => {
-                browser.setViewportSize(platformsConfig[platform].viewport, true);
+            beforeEach(done => {
+                browser.setViewportSize(platformsConfig[platform].viewport, true)
+                    .then(done);
             });
 
             configData.forEach(item => {
                 it(item.name || "Name wasn't specified", (done) => {
-                    const isUrl = /^https\:\/\/(app|dxt|msit|powerbi-df)\.(powerbi|analysis-df\.windows)\.(com|net)\/view/.test(item.url);
-                    let page = 0;
+                    const isUrl: boolean = /^https\:\/\/(app|dxt|msit|powerbi-df)\.(powerbi|analysis-df\.windows)\.(com|net)\/view/.test(item.url);
+                    let page: number = 0;
 
                     expect(isUrl).toBe(true);
 
@@ -187,7 +192,6 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
                         .timeouts("page load", 60000);
 
                     let urlPromise: any = browser.url(item.url);
-
                     (function loop() {
                         let element: any = item.element || null;
                         if (element &&
@@ -195,19 +199,24 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
                             element = element[page];
                         }
 
-                        Promise.all(getElementsPromises.apply(urlPromise, [element, item.existTimeout]))
-                            .then(() => checkIFrames(element, item.existTimeout))
-                            .then(() => {
-                                let clientContext = browser
-                                    .pause(item.pause || pause)
-                                    .assertAreaScreenshotMatch({
-                                        name: `report_page-${++page}`,
-                                        ignore: `antialiasing`,
-                                        elem: (element && element.snapshot) || defaultSnapshotElement
-                                    });
+                        const pause: number = item.pause || defaultPause;
+                        const screenshotElement: string = (element && element.snapshot) || defaultSnapshotElement;
 
-                                paginatePages.apply(clientContext, [loop, done]);
-                            });
+                        (async () => {
+                            try {
+                                await urlPromise;
+                                await awaitElements(element, item.existTimeout);
+                                await checkIFrames(element, item.existTimeout);
+                                await takeScreenshot(screenshotElement, pause, ++page);
+                                await paginatePages(loop);
+                            } catch(err) {
+                                if (debugMode) {
+                                    console.error(err.message);
+                                }
+                            }
+
+                            browser.call(done);
+                        })();
                     }());
                 });
             });
