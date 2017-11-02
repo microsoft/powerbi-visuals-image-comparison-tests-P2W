@@ -65,7 +65,7 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
             await browser
                 .elementIdClick(paginationLinkEl[2].ELEMENT);
 
-            loop();
+            await loop();
         } catch (err) {
             throw new Error(err);
         }
@@ -192,7 +192,7 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
                         .timeouts("page load", 60000);
 
                     let urlPromise: any = browser.url(item.url);
-                    (function loop() {
+                    (async function loop() {
                         let element: any = item.element || null;
                         if (element &&
                             Object.prototype.toString.call(item.element) === `[object Array]`) {
@@ -202,22 +202,20 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
                         const pause: number = item.pause || defaultPause;
                         const screenshotElement: string = (element && element.snapshot) || defaultSnapshotElement;
 
-                        (async () => {
-                            try {
-                                await urlPromise;
-                                await awaitElements(element, item.existTimeout);
-                                await checkIFrames(element, item.existTimeout);
-                                await takeScreenshot(screenshotElement, pause, ++page);
-                                await paginatePages(loop);
-                            } catch(err) {
-                                if (debugMode) {
-                                    console.error(err.message);
-                                }
+                        try {
+                            await urlPromise;
+                            await awaitElements(element, item.existTimeout);
+                            await checkIFrames(element, item.existTimeout);
+                            await takeScreenshot(screenshotElement, pause, ++page);
+                            await paginatePages(loop);
+                        } catch(err) {
+                            if (debugMode) {
+                                console.error(err.message);
                             }
+                        }
 
-                            browser.call(done);
-                        })();
-                    }());
+                        browser.call(done);
+                    })();
                 });
             });
         });
