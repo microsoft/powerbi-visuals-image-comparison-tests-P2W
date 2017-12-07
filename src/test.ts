@@ -39,9 +39,9 @@ let debugMode: boolean = process.argv.indexOf("--debug") !== -1;
 
 module powerbi.extensibility.visual.test.imageComparisonP2W {
 
-    const dafaultExistTimeout: number = 20000,
+    const dafaultExistTimeout: number = 25000,
         dafaultExistIFrameTimeout: number = dafaultExistTimeout - 5000,
-        defaultPause: number = 4000,
+        defaultPause: number = 5000,
         defaultElement: string = "div.visual",
         defaultFrameElement: string = "iframe div",
         defaultSnapshotElement: string = "div.visualContainerHost",
