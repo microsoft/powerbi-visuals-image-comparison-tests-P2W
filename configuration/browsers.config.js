@@ -5,7 +5,7 @@ const path = require("path");
 
 module.exports = {
     chromium: {
-        version: "61.0.3163.100",
+        version: "63.0.3239.84",
         platform: "Win_x64"
     },
     defaultPath: path.join(__dirname, "../browsers")
