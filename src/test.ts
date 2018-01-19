@@ -42,9 +42,12 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
     const dafaultExistTimeout: number = 25000,
         dafaultExistIFrameTimeout: number = dafaultExistTimeout - 5000,
         defaultPause: number = 5000,
+        pauseBeforeCheckingLoader: number = 1000,
+        loaderElement: string = `div.circle`,
         defaultElement: string = "div.visual",
         defaultFrameElement: string = "iframe div",
         defaultSnapshotElement: string = "div.visualContainerHost",
+
         pagePaginationElements: string = ".logoBar .navigation-wrapper > a";
 
     async function paginatePages(loop: () => void): Promise<any> {
@@ -130,9 +133,9 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
         elementForSearch = elementForSearch || defaultFrameElement;
         existTimeout = existTimeout || dafaultExistTimeout;
 
-        await browser.frame(frames[index]);
-        await browser.waitForExist(elementForSearch, existTimeout);
-        await browser.frameParent();
+        await browser.frame(frames[index])
+            .waitForExist(elementForSearch, existTimeout)
+            .frameParent();
 
         if (frames.length - 1 === index) {
             return;
@@ -154,6 +157,20 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
                     elem: element
                 });
         } catch(err) {
+            throw new Error(err);
+        }
+    }
+
+    async function checkDataLoading() {
+        try {
+            let loaders = (await browser.elements(loaderElement)).value;
+            if (!loaders.length) {
+                return;
+            }
+
+            await browser.pause(pauseBeforeCheckingLoader);
+            await checkDataLoading();
+        } catch (err) {
             throw new Error(err);
         }
     }
@@ -188,7 +205,7 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
 
                     browser
                         .timeouts("script", 60000)
-                        .timeouts("implicit", 60000)
+                        .timeouts("implicit", 1000)
                         .timeouts("page load", 60000);
 
                     let urlPromise: any = browser.url(item.url);
@@ -205,6 +222,7 @@ module powerbi.extensibility.visual.test.imageComparisonP2W {
                         try {
                             await urlPromise;
                             await awaitElements(element, item.existTimeout);
+                            await checkDataLoading();
                             await checkIFrames(element, item.existTimeout);
                             await takeScreenshot(screenshotElement, pause, ++page);
                             await paginatePages(loop);
